@@ -1,0 +1,4 @@
+<svg height="80" width="80" name="red-king">
+    <circle cx="40" cy="40" r="30" stroke="black" stroke-width="2" fill="red" />
+    <text xmlns="http://www.w3.org/2000/svg" font-style="normal" xml:space="preserve" text-anchor="start" font-family="'Shadows Into Light', serif" font-size="36" id="svg_5" y="52" x="26.5" stroke-width="0" stroke="#000" fill="#ffffff">K</text>
+</svg>

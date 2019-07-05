@@ -1,0 +1,40 @@
+.board-row:after {
+    clear: both;
+    content: "";
+    display: table;
+}
+
+.white {
+    background: #fff;
+}
+
+.blue {
+    background: blue;
+}
+
+.square {
+    border: 1px solid #999;
+    float: left;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 80px;
+    height: 80px;
+    width: 80px;
+    margin: -1px;
+    padding: 0;
+    text-align: center;
+}
+
+.square:focus {
+    outline: none;
+}
+
+.checker {
+    opacity: .9;
+    height: 78px;
+    width: 78px;
+}
+
+.dragging {
+    opacity: .5;
+}
