@@ -4,7 +4,6 @@ import BoardRow from './board-row'
 export default class Board extends Component {
     renderBoardRow(row) {
         return <BoardRow squares={this.props.squares}
-            checkers={this.props.checkers}
             row={row} />
     }
 

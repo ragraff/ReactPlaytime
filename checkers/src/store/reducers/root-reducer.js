@@ -1,10 +1,10 @@
 import { checkersReducer } from './checkers-reducer';
-import { turnReducer } from './turn-reducer';
+import { gameStatusReducer } from './game-status-reducer';
 
 export function checkersApp(state = {}, action) {
     return {
         checkersReducer: checkersReducer(state.checkersReducer, action),
-        turnReducer: turnReducer(state.turnReducer, action)
+        gameStatusReducer: gameStatusReducer(state.gameStatusReducer, action)
     }
 }
 

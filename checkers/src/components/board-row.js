@@ -5,7 +5,6 @@ import { getSquareNumber } from '../helpers/square-helper';
 class BoardRow extends Component {
     renderSquare(column) {
         return <Square squares={this.props.squares}
-            checkers={this.props.checkers}
             squareNumber={getSquareNumber(this.props.row, column)} />
     }
 

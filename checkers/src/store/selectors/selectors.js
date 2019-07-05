@@ -1,9 +1,4 @@
-function getCheckers(store) {
-    return store.checkersReducer.checkers;
-}
-
-function getTurn(store) {
-    return store.turnReducer.turn
-}
-
-export { getCheckers, getTurn }
+export const getCheckers = (store) => store.checkersReducer.checkers;
+export const getMovesWithNoJump = (store) => store.gameStatusReducer.movesWithNoJump;
+export const getTurn = (store) => store.gameStatusReducer.turn;
+export const getWinner = (store) => store.gameStatusReducer.winner;

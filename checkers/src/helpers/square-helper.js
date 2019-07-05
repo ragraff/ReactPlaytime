@@ -1,21 +1,90 @@
 import CheckerType from "../enums/checker-types";
-import BoardColors from "../enums/board-colors";
+import CheckerDirections from '../enums/checker-directions';
+import BoardColors from '../enums/board-colors';
+import { kingChecker } from "./checker-helper";
 
-function getSquareNumber(row, column) {
-    return (row * 8) + column;
+
+export const isNewSquareOccupied = (checkers, toSquare) => {
+    return checkers[toSquare] !== CheckerType.NONE;
 }
 
-function isDiagonalSquare(fromSquare, toSquare) {
-    const squareDiff = fromSquare - toSquare;
-    return Math.abs(squareDiff) === 7 || Math.abs(squareDiff) === 9;
+export const isIntermediateSquareOccupiedByOpponent = (checkers, chipColor, fromSquare, toSquare) => {
+    const intermediateSquare = getIntermediateSquare(fromSquare, toSquare);
+    return checkers[intermediateSquare] !== chipColor && checkers[intermediateSquare] !== CheckerType.NONE;
 }
 
-function isDiagonalJumpSquare(fromSquare, toSquare) {
-    const squareDiff = fromSquare - toSquare;
-    return Math.abs(squareDiff) === 14 || Math.abs(squareDiff) === 18;
+export const canCheckerJump = (checkers, squares, square, justKinged) => {
+    const checkerType = justKinged ?
+        kingChecker(checkers[square]) :
+        checkers[square];
+
+    switch (checkerType) {
+        case CheckerType.BLACK:
+            return canBlackJump(squares, checkers, square);
+        case CheckerType.RED:
+            return canRedJump(squares, checkers, square);
+        case CheckerType.BLACK_KING:
+            return canBlackKingJump(squares, checkers, square);
+        case CheckerType.RED_KING:
+            return canRedKingJump(squares, checkers, square);
+        default:
+            return false;
+    }
 }
 
-function isForward(chipColor, fromSquare, toSquare) {
+const canBlackJump = (squares, checkers, square) =>
+    canJumpTheDirection(squares, checkers, square, 7, CheckerType.RED, CheckerType.RED_KING) ||
+    canJumpTheDirection(squares, checkers, square, 9, CheckerType.RED, CheckerType.RED_KING);
+
+const canRedJump = (squares, checkers, square) =>
+    canJumpTheDirection(squares, checkers, square, -7, CheckerType.BLACK, CheckerType.BLACK_KING) ||
+    canJumpTheDirection(squares, checkers, square, -9, CheckerType.BLACK, CheckerType.BLACK_KING);
+
+
+
+const canBlackKingJump = (squares, checkers, square) =>
+    canJumpTheDirection(squares, checkers, square, CheckerDirections.Southwest, CheckerType.RED, CheckerType.RED_KING) ||
+    canJumpTheDirection(squares, checkers, square, CheckerDirections.Southeast, CheckerType.RED, CheckerType.RED_KING) ||
+    canJumpTheDirection(squares, checkers, square, CheckerDirections.Northeast, CheckerType.RED, CheckerType.RED_KING) ||
+    canJumpTheDirection(squares, checkers, square, CheckerDirections.Northwest, CheckerType.RED, CheckerType.RED_KING);
+
+
+const canRedKingJump = (squares, checkers, square) =>
+    canJumpTheDirection(squares, checkers, square, CheckerDirections.Southwest, CheckerType.BLACK, CheckerType.BLACK_KING) ||
+    canJumpTheDirection(squares, checkers, square, CheckerDirections.Southeast, CheckerType.BLACK, CheckerType.BLACK_KING) ||
+    canJumpTheDirection(squares, checkers, square, CheckerDirections.Northeast, CheckerType.BLACK, CheckerType.BLACK_KING) ||
+    canJumpTheDirection(squares, checkers, square, CheckerDirections.Northwest, CheckerType.BLACK, CheckerType.BLACK_KING);
+
+
+const canJumpTheDirection = (squares, checkers, square, factor, opponent, opponentKing) => {
+    const square1 = checkers[square + factor];
+    const square2 = checkers[square + factor * 2];
+    const boardSquare1 = squares[square + factor];
+    const boardSquare2 = squares[square + factor * 2];
+    return ((square1 === opponent) ||
+        (square1 === opponentKing)) &&
+        boardSquare1 === BoardColors.BLUE &&
+        square2 === CheckerType.NONE &&
+        boardSquare2 === BoardColors.BLUE;
+}
+
+export const getSquareNumber = (row, column) => (row * 8) + column;
+
+export const isDiagonalSquare = (fromSquare, toSquare) => {
+    const diff = Math.abs(fromSquare - toSquare);
+    return diff === 7 || diff === 9;
+}
+
+export const isDiagonalJumpSquare = (fromSquare, toSquare) => {
+    const diff = Math.abs(fromSquare - toSquare);
+    return diff === 14 || diff === 18;
+}
+
+export const isForward = (chipColor, fromSquare, toSquare) => {
+    if (toSquare < 0 || toSquare > 63) {
+        return false;
+    }
+
     const squareDiff = fromSquare - toSquare;
     switch (chipColor) {
         case CheckerType.RED:
@@ -31,95 +100,15 @@ function isForward(chipColor, fromSquare, toSquare) {
     }
 }
 
-function isIntermediateSquareOccupiedByOpponent(checkers, chipColor, fromSquare, toSquare) {
-    const intermediateSquare = getIntermediateSquare(fromSquare, toSquare);
-    return checkers[intermediateSquare] !== chipColor &&
-        checkers[intermediateSquare] !== CheckerType.NONE;
-}
-
-function isNewSquareOccupied(checkers, toSquare) {
-    return checkers[toSquare] !== CheckerType.NONE;
-}
-
-function getIntermediateSquare(fromSquare, toSquare) {
-    return (fromSquare + toSquare) / 2;
-}
-
-function completedJump(startSquare, endSquare) {
+export const completedJump = (startSquare, endSquare) => {
     const diff = Math.abs(startSquare - endSquare);
     return diff === 14 || diff === 18;
 }
 
-function canCheckerJump(squares, checkers, square) {
-    const checkerType = checkers[square];
+export const getIntermediateSquare = (fromSquare, toSquare) => (fromSquare + toSquare) / 2;
 
-    switch (checkerType) {
-        case CheckerType.BLACK:
-            return checkBlack(squares, checkers, square);
-        case CheckerType.RED:
-            return checkRed(squares, checkers, square);
-        default:
-            return false;
-    }
-}
 
-function checkBlack(squares, checkers, square) {
-    const sw1 = checkers[square + 7];
-    const sw2 = checkers[square + 14];
-    const swBoard1 = squares[square + 7];
-    const swBoard2 = squares[square + 14];
-    if ((sw1 === CheckerType.RED ||
-        sw1 === CheckerType.RED_KING) &&
-        swBoard1 === BoardColors.BLUE &&
-        sw2 === CheckerType.NONE &&
-        swBoard2 === BoardColors.BLUE) {
-        return true;
-    }
-
-    const se1 = checkers[square + 9];
-    const se2 = checkers[square + 18];
-    const seBoard1 = squares[square + 9];
-    const seBoard2 = squares[square + 18];
-    if ((se1 === CheckerType.RED ||
-        se1 === CheckerType.RED_KING) &&
-        seBoard1 === BoardColors.BLUE &&
-        se2 === CheckerType.NONE &&
-        seBoard2 === BoardColors.BLUE) {
-        return true;
-    }
-
-    return false;
-}
-
-function checkRed(squares, checkers, square) {
-    const nw1 = checkers[square - 9];
-    const nw2 = checkers[square - 18];
-    const nwBoard1 = squares[square - 9];
-    const nwBoard2 = squares[square - 18];
-    if ((nw1 === CheckerType.BLACK ||
-        nw1 === CheckerType.BLACK_KING) &&
-        nwBoard1 === BoardColors.BLUE &&
-        nw2 === CheckerType.NONE &&
-        nwBoard2 === BoardColors.BLUE) {
-        return true;
-    }
-
-    const ne1 = checkers[square - 7];
-    const ne2 = checkers[square - 14];
-    const neBoard1 = squares[square - 7];
-    const neBoard2 = squares[square - 14];
-    if ((ne1 === CheckerType.BLACK ||
-        ne1 === CheckerType.BLACK_KING) &&
-        neBoard1 === BoardColors.BLUE &&
-        ne2 === CheckerType.NONE &&
-        neBoard2 === BoardColors.BLUE) {
-        return true;
-    }
-
-    return false;
-}
-
-function shouldKing(checkers, endSquare, isKinged) {
+export const shouldKing = (checkers, endSquare, isKinged) => {
     switch (checkers[endSquare]) {
         case CheckerType.BLACK:
             return endSquare >= 56 && !isKinged;
@@ -128,17 +117,4 @@ function shouldKing(checkers, endSquare, isKinged) {
         default:
             return false;
     }
-}
-
-export {
-    getSquareNumber,
-    isDiagonalSquare,
-    isDiagonalJumpSquare,
-    isForward,
-    isIntermediateSquareOccupiedByOpponent,
-    isNewSquareOccupied,
-    getIntermediateSquare,
-    completedJump,
-    canCheckerJump,
-    shouldKing
 }

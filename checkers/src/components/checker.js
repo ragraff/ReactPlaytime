@@ -10,7 +10,12 @@ import { connect } from 'react-redux'
 import ItemTypes from '../helpers/constants';
 import { toggleTurn } from '../store/actions/toggle-turn';
 import { king } from '../store/actions/king';
-import { canCheckerJump, completedJump, shouldKing } from '../helpers/square-helper';
+import { declareWinner } from '../store/actions/declare-winner';
+import { incrementMovesWithNoJump } from '../store/actions/increment-moves-with-no-jump';
+import { resetMovesWithNoJump } from '../store/actions/reset-moves-with-no-jump';
+import { getCheckers, getMovesWithNoJump } from '../store/selectors/selectors';
+import { handleEnd } from '../helpers/drag-n-drop-helper'
+
 
 export function Checker(props) {
     const [{ isDragging }, drag] = useDrag({
@@ -18,22 +23,7 @@ export function Checker(props) {
             id: props.squareNumber,
             type: ItemTypes.CHECKER
         },
-        end: ({ }, monitor) => {
-            if (monitor && monitor.getDropResult() && monitor.didDrop()) {
-                const startSquare = monitor.getDropResult().startSquare;
-                const endSquare = monitor.getDropResult().endSquare;
-
-                if (shouldKing(props.checkers, endSquare, false)) {
-                    props.king(endSquare)
-                }
-
-                const _completedJump = completedJump(startSquare, endSquare);
-                const _canCheckerJump = canCheckerJump(props.squares, props.checkers, endSquare);
-                if (!!monitor.didDrop() &&
-                    (!_completedJump || !_canCheckerJump))
-                    props.toggleTurn()
-            }
-        },
+        end: ({ }, monitor) => handleEnd(monitor, props),
         collect: monitor => ({
             isDragging: !!monitor.isDragging()
         })
@@ -70,6 +60,9 @@ export function Checker(props) {
 }
 
 export default connect(
-    null,
-    { toggleTurn, king }
+    state => ({
+        checkers: getCheckers(state),
+        movesWithNoJump: getMovesWithNoJump(state)
+    }),
+    { toggleTurn, king, declareWinner, incrementMovesWithNoJump, resetMovesWithNoJump }
 )(Checker);

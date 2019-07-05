@@ -14,6 +14,8 @@ import HTML5Backend from 'react-dnd-html5-backend'
 const store = createStore(checkersApp,
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
+export default store;
+
 render(
     <Provider store={store}>
         <DndProvider backend={HTML5Backend}>

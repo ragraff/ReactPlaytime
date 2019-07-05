@@ -3,11 +3,14 @@ import { JUMP_CHECKER } from '../actions/jump-checker';
 import { KING } from '../actions/king';
 import { CheckerTypes } from '../../enums/checker-types';
 import { getIntermediateSquare } from '../../helpers/square-helper';
-import { setChips } from '../../helpers/chip-helper';
 import { kingChecker } from '../../helpers/checker-helper';
+import { setCheckers } from '../../helpers/init-helper';
 
 const initialState = {
-    checkers: setChips()
+    checkers: setCheckers()
+    // checkers: testJustKingedCanJumpSetup()
+    // checkers: hasOneLegalMove()
+    // checkers: oneMoveToWin()
 }
 
 export function checkersReducer(state = initialState, action) {
